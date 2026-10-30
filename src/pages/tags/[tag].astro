@@ -1,0 +1,85 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/list/PostList.astro';
+import { collectTags, sortByDateDesc, toPostItem } from '../../components/list/post-item';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const published = await getCollection('research', ({ data }) => !data.draft);
+  return collectTags(published).map((bucket) => ({
+    params: { tag: bucket.slug },
+    props: {
+      label: bucket.label,
+      entries: sortByDateDesc(bucket.items as CollectionEntry<'research'>[]),
+    },
+  }));
+}
+
+interface Props {
+  label: string;
+  entries: CollectionEntry<'research'>[];
+}
+
+const { label, entries } = Astro.props;
+const items = entries.map(toPostItem);
+const count = items.length;
+---
+
+<Base
+  title={`Tag: ${label}`}
+  description={`${count} riset kagurasaka dengan tag ${label}.`}
+>
+  <div class="wrap">
+    <p class="eyebrow">
+      <a href={withBase('/tags/')}>Arsip tag</a>
+    </p>
+    <h1 class="tag__title">Tag: {label}</h1>
+    <p class="tag__count">
+      {count} riset
+    </p>
+
+    <PostList items={items} emptyText={`Belum ada riset dengan tag ${label}.`} />
+
+    <p class="tag__back">
+      <a href={withBase('/tags/')}>← Semua tag</a>
+    </p>
+  </div>
+</Base>
+
+<style>
+  .tag__title {
+    margin-bottom: var(--s2);
+  }
+
+  .tag__count {
+    margin-bottom: var(--s6);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+  }
+
+  .eyebrow a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .eyebrow a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--accent);
+  }
+
+  .tag__back {
+    margin-top: var(--s6);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+  }
+
+  .tag__back a {
+    color: var(--ink);
+    text-decoration-color: var(--accent);
+  }
+</style>

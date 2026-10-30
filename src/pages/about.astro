@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url';
+
+const description =
+  'Siapa yang menulis kagurasaka, fokus riset keamanan aplikasi, cloud, dan red team, serta cara menghubungi penulis.';
+
+const githubUrl = 'https://github.com/lxdwnpiper';
+// Placeholder PGP fingerprint — ganti dengan sidik jari kunci asli penulis.
+const pgpFingerprint = [
+  '0000 0000 0000 0000 0000',
+  '0000 0000 0000 0000 0000',
+].join('\n');
+---
+
+<Base title="Tentang" description={description}>
+  <div class="wrap about">
+    <p class="eyebrow">Penulis</p>
+    <h1>Tentang</h1>
+
+    <div class="about__prose">
+      <p>
+        kagurasaka adalah catatan riset pribadi tentang keamanan aplikasi. Semua tulisan di
+        sini ditulis oleh satu orang: pemilik blog ini, yang menghabiskan sebagian besar
+        waktunya membongkar aplikasi web, membaca kode, dan menguji asumsi yang biasanya
+        lolos dari pengujian fungsional. Blog ini bukan publikasi korporat dan tidak mewakili
+        siapa pun selain penulisnya.
+      </p>
+
+      <p>
+        Fokus risetnya ada tiga: keamanan aplikasi — otentikasi, otorisasi, validasi masukan,
+        dan kesalahan desain yang muncul saat fitur bertambah; keamanan cloud — konfigurasi
+        identitas, izin yang terlalu longgar, serta batas kepercayaan antar layanan; dan
+        latihan red team — cara berpikir seperti penyerang untuk menemukan jalur yang tidak
+        terlihat dari diagram arsitektur. Yang dicari biasanya bukan kerentanan tunggal yang
+        dramatis, melainkan rangkaian kecil yang bila disusun rapi berubah menjadi akses penuh.
+      </p>
+
+      <p>
+        Setiap artikel diupayakan memuat bukti yang bisa direproduksi: perintah, potongan
+        kode, tangkapan keluaran, dan kondisi lingkungan saat pengujian. Kalau sebuah klaim
+        tidak bisa diulang, klaim itu tidak layak ditulis. Koreksi selalu diterima — kirim
+        lewat salah satu kanal di bawah.
+      </p>
+    </div>
+
+    <section class="about__section" aria-labelledby="kontak">
+      <h2 id="kontak">Kontak</h2>
+      <p class="about__section-lead">
+        Kanal terbuka untuk pertanyaan teknis, koreksi, atau diskusi hasil riset.
+      </p>
+      <ul class="about__links">
+        <li>
+          <a href={githubUrl} rel="me noopener noreferrer" target="_blank">
+            GitHub — github.com/lxdwnpiper
+          </a>
+        </li>
+        <li>
+          <a href={withBase('/rss.xml')}>RSS — ikuti tulisan baru</a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="about__section" aria-labelledby="pgp">
+      <h2 id="pgp">Kunci PGP</h2>
+      <p class="about__section-lead">
+        Untuk laporan yang sifatnya sensitif, gunakan kunci publik di bawah. Sidik jari ini
+        masih <strong>placeholder</strong> — belum kunci asli.
+      </p>
+      <pre class="about__fingerprint" aria-label="Sidik jari PGP placeholder">{pgpFingerprint}</pre>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .about {
+    max-width: calc(var(--measure) + var(--s8) * 2);
+  }
+
+  .about__prose {
+    max-width: var(--measure);
+  }
+
+  .about__prose p {
+    margin-bottom: var(--s5);
+  }
+
+  .about__section {
+    max-width: var(--measure);
+    margin-top: var(--s7);
+    padding-top: var(--s5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .about__section h2 {
+    margin-bottom: var(--s3);
+  }
+
+  .about__section-lead {
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .about__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+  }
+
+  .about__links li + li {
+    margin-top: var(--s3);
+  }
+
+  .about__links a {
+    color: var(--ink);
+    text-decoration-color: var(--accent);
+  }
+
+  .about__fingerprint {
+    margin: 0;
+    padding: var(--s4);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: transparent;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: var(--muted);
+    overflow-x: auto;
+    white-space: pre;
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+// Theme toggle. The effective theme is applied before paint by the inline
+// script in Base.astro, which is the single source of truth for the button state.
+---
+
+<button
+  class="theme-toggle"
+  id="theme-toggle"
+  type="button"
+  aria-label="Ganti tema terang atau gelap"
+  aria-pressed="false"
+  data-theme-toggle
+>
+  <span aria-hidden="true" data-theme-icon>◐</span>
+  <span data-theme-label>Tema</span>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const button = document.getElementById('theme-toggle');
+  const label = button?.querySelector<HTMLElement>('[data-theme-label]');
+  const icon = button?.querySelector<HTMLElement>('[data-theme-icon]');
+
+  const current = () =>
+    root.dataset.theme ??
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  const sync = () => {
+    const theme = current();
+    button?.setAttribute('aria-pressed', String(theme === 'dark'));
+    if (label) label.textContent = theme === 'dark' ? 'Gelap' : 'Terang';
+    if (icon) icon.textContent = theme === 'dark' ? '●' : '○';
+  };
+
+  button?.addEventListener('click', () => {
+    const next = current() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* storage blocked (private mode) — the toggle still works for this page */
+    }
+    sync();
+  });
+
+  sync();
+</script>

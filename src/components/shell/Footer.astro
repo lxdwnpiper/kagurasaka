@@ -1,0 +1,18 @@
+---
+import { withBase } from '../../lib/url';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <p style="margin:0">
+      © {year} kagurasaka · riset keamanan independen
+    </p>
+    <nav aria-label="Tautan footer" style="display:flex;flex-wrap:wrap;gap:var(--s4)">
+      <a href={withBase('/rss.xml')}>RSS</a>
+      <a href={withBase('/about')}>Tentang</a>
+      <a href="https://github.com/lxdwnpiper" rel="me noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>

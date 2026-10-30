@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/list/PostList.astro';
+import { sortByDateDesc, toPostItem } from '../../components/list/post-item';
+import { withBase } from '../../lib/url';
+
+// Drafts are hidden from the built site, but stay visible in `astro dev`.
+const published = await getCollection('research', ({ data }) =>
+  import.meta.env.PROD ? !data.draft : true,
+);
+const items = sortByDateDesc(published).map(toPostItem);
+const total = items.length;
+
+const description =
+  'Arsip lengkap riset keamanan kagurasaka — aplikasi, cloud, dan red team — diurutkan dari yang terbaru.';
+---
+
+<Base title="Riset" description={description}>
+  <div class="wrap">
+    <p class="eyebrow">Arsip</p>
+    <h1>Riset</h1>
+    <p class="research__lead">
+      {total === 0 ? 'Belum ada riset yang terbit.' : `${total} riset`}
+    </p>
+
+    <PostList items={items} emptyText="Belum ada riset yang terbit." />
+
+    <nav class="research__links" aria-label="Tautan arsip">
+      <a href={withBase('/tags/')}>Arsip tag →</a>
+      <a href={withBase('/rss.xml')}>RSS</a>
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .research__lead {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    margin-bottom: var(--s6);
+  }
+
+  .research__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s5);
+    margin-top: var(--s5);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+  }
+
+  .research__links a {
+    color: var(--ink);
+    text-decoration-color: var(--accent);
+  }
+</style>

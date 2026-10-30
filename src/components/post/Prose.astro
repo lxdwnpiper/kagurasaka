@@ -1,0 +1,56 @@
+---
+/**
+ * Prose — merender HTML markdown (slot) lalu mengganti blok kode dan kutipan
+ * dengan komponen CodeBlock / Callout.
+ *
+ * Kenapa begini: di Astro 5 prop `components` pada `<Content />` hanya
+ * diteruskan untuk koleksi `.mdx`; untuk `.md` blok `<pre>` tidak bisa
+ * di-override. Jadi HTML hasil render ditangkap lewat `Astro.slots.render()`
+ * pada build time, dipecah per blok, lalu tiap blok dirender sebagai komponen.
+ */
+import CodeBlock from './CodeBlock.astro';
+import Callout from './Callout.astro';
+
+const raw = String((await Astro.slots.render('default')) ?? '');
+
+type Block =
+  | { kind: 'code'; html: string; lang: string }
+  | { kind: 'quote'; html: string }
+  | { kind: 'table'; html: string }
+  | { kind: 'html'; html: string };
+
+const BLOCK = /(<pre\b[\s\S]*?<\/pre>|<blockquote\b[\s\S]*?<\/blockquote>|<table\b[\s\S]*?<\/table>)/;
+
+const blocks: Block[] = raw
+  .split(BLOCK)
+  .filter((chunk) => chunk.trim().length > 0)
+  .map((chunk): Block => {
+    const pre = chunk.match(/^<pre\b([^>]*)>([\s\S]*)<\/pre>$/);
+    if (pre) {
+      const lang = pre[1].match(/data-language="([^"]*)"/)?.[1] ?? '';
+      return { kind: 'code', html: pre[2], lang };
+    }
+    const quote = chunk.match(/^<blockquote\b[^>]*>([\s\S]*)<\/blockquote>$/);
+    if (quote) return { kind: 'quote', html: quote[1] };
+    if (chunk.startsWith('<table')) return { kind: 'table', html: chunk };
+    return { kind: 'html', html: chunk };
+  });
+---
+
+<article class="prose">
+  {
+    blocks.map((block) =>
+      block.kind === 'code' ? (
+        <CodeBlock html={block.html} lang={block.lang} />
+      ) : block.kind === 'quote' ? (
+        <Callout html={block.html} />
+      ) : block.kind === 'table' ? (
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Tabel">
+          <Fragment set:html={block.html} />
+        </div>
+      ) : (
+        <Fragment set:html={block.html} />
+      ),
+    )
+  }
+</article>

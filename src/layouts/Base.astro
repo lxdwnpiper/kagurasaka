@@ -1,0 +1,88 @@
+---
+import '../styles/global.css';
+import { withBase } from '../lib/url';
+import Header from '../components/shell/Header.astro';
+import Footer from '../components/shell/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** og:type */
+  type?: 'website' | 'article';
+  /** Extra head content, e.g. per-page JSON-LD. */
+  head?: string;
+}
+
+const { title, description, type = 'website' } = Astro.props;
+
+const siteName = 'kagurasaka';
+const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
+const canonical = Astro.site
+  ? new URL(Astro.url.pathname, Astro.site).href
+  : Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="id_ID" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <link rel="stylesheet" href={withBase('/fonts/fonts.css')} />
+    <link
+      rel="preload"
+      href={withBase('/fonts/newsreader-latin.woff2')}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href={withBase('/fonts/inter-latin.woff2')}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="alternate" type="application/rss+xml" title={`${siteName} — RSS`} href={withBase('/rss.xml')} />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem('theme');
+          const theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          /* storage unavailable — CSS prefers-color-scheme still applies */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Lompat ke konten</a>
+    <Header current={Astro.url.pathname} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

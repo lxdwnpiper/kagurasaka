@@ -1,0 +1,36 @@
+---
+import { withBase } from '../../lib/url';
+import ThemeToggle from './ThemeToggle.astro';
+
+type Props = {
+  /** Pathname of the current page, already including the base (e.g. Astro.url.pathname). */
+  current?: string;
+};
+
+const { current = '' } = Astro.props;
+
+const links = [
+  { href: withBase('/research'), label: 'Riset' },
+  { href: withBase('/tags'), label: 'Tag' },
+  { href: withBase('/about'), label: 'Tentang' },
+];
+
+const isActive = (href: string) =>
+  current === href || current === `${href}/` || current.startsWith(`${href}/`);
+---
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href={withBase('/')}>kagurasaka</a>
+    <nav class="site-nav" aria-label="Navigasi utama">
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={isActive(link.href) ? 'page' : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+    <ThemeToggle />
+  </div>
+</header>

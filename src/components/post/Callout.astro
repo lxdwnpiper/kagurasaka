@@ -1,0 +1,79 @@
+---
+/**
+ * Callout — varian note / warn / poc, border kiri 2px.
+ * Dipakai oleh Prose.astro untuk setiap `<blockquote>` hasil render markdown,
+ * dengan marker `[!note]` / `[!warn]` / `[!poc]` di awal paragraf.
+ */
+interface Props {
+  /** Isi blockquote hasil markdown. Bila kosong, dipakai default slot. */
+  html?: string;
+  variant?: 'note' | 'warn' | 'poc';
+  title?: string;
+}
+
+const { variant, title } = Astro.props;
+
+let html = Astro.props.html ?? String((await Astro.slots.render('default')) ?? '');
+const marker = html.match(/\[!(note|warn|poc)\]/i);
+const kind: 'note' | 'warn' | 'poc' =
+  variant ?? (marker ? (marker[1].toLowerCase() as 'note' | 'warn' | 'poc') : 'note');
+
+if (marker) html = html.replace(/\[!(note|warn|poc)\]\s*/i, '');
+
+const labels: Record<string, string> = {
+  note: 'Catatan',
+  warn: 'Peringatan',
+  poc: 'PoC',
+};
+const label = title ?? labels[kind];
+---
+
+<aside class:list={['callout', `callout--${kind}`]} data-variant={kind}>
+  <p class="callout__label">{label}</p>
+  <div class="callout__body"><Fragment set:html={html} /></div>
+</aside>
+
+<style>
+  .callout {
+    margin: 0 0 var(--s5);
+    padding: var(--s3) var(--s4);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--muted);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: 0.9375rem;
+  }
+
+  .callout--note {
+    border-left-color: var(--accent);
+  }
+
+  .callout--warn {
+    border-left-color: var(--ink);
+  }
+
+  .callout--poc {
+    border-left-color: var(--muted);
+  }
+
+  .callout__label {
+    margin: 0 0 var(--s2);
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .callout__body :global(p) {
+    margin: 0;
+  }
+
+  .callout__body :global(p + p) {
+    margin-top: var(--s3);
+  }
+
+  .callout__body :global(a) {
+    color: var(--accent);
+  }
+</style>

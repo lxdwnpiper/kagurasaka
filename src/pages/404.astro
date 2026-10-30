@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url';
+---
+
+<Base title="Halaman tidak ditemukan" description="Alamat yang diminta tidak ada di kagurasaka.">
+  <div class="wrap notfound">
+    <p class="eyebrow">404</p>
+    <h1>Halaman tidak ditemukan</h1>
+    <p class="notfound__body">
+      Alamat ini tidak ada, sudah dipindah, atau salah ketik. Arsip riset tetap terbuka.
+    </p>
+    <nav class="notfound__links" aria-label="Tautan pemulihan">
+      <a href={withBase('/')}>← Beranda</a>
+      <a href={withBase('/research/')}>Semua riset</a>
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .notfound {
+    max-width: var(--measure);
+  }
+
+  .notfound__body {
+    color: var(--muted);
+    margin-bottom: var(--s6);
+  }
+
+  .notfound__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s5);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    padding-top: var(--s5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .notfound__links a {
+    color: var(--ink);
+    text-decoration-color: var(--accent);
+  }
+</style>

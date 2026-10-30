@@ -1,0 +1,343 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { withBase } from '../../lib/url';
+import Prose from '../../components/post/Prose.astro';
+import Toc from '../../components/post/Toc.astro';
+import PostMeta from '../../components/post/PostMeta.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('research', ({ data }) => !data.draft || import.meta.env.DEV);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: CollectionEntry<'research'>;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const all = await getCollection('research', ({ data }) => !data.draft || import.meta.env.DEV);
+
+const related = all
+  .filter((p) => p.id !== post.id && p.data.tags.some((tag) => post.data.tags.includes(tag)))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const words = (post.body ?? '').trim().split(/\s+/).filter(Boolean).length;
+const dateFmt = new Intl.DateTimeFormat('id-ID', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'Asia/Makassar',
+});
+---
+
+<Base title={post.data.title} description={post.data.description} type="article">
+  <div class="post-layout">
+    <header class="post-head">
+      <p class="eyebrow">Riset</p>
+      <h1 class="post-title">{post.data.title}</h1>
+      {post.data.abstract && <p class="post-abstract">{post.data.abstract}</p>}
+      <PostMeta
+        date={post.data.date}
+        updated={post.data.updated}
+        words={words}
+        tags={post.data.tags}
+        severity={post.data.severity}
+        cve={post.data.cve}
+      />
+    </header>
+
+    <div class="post-aside">
+      {post.data.toc && <Toc headings={headings} />}
+    </div>
+
+    <div class="post-main">
+      <Prose>
+        <Content />
+      </Prose>
+
+
+      {
+        related.length > 0 && (
+          <section class="related" aria-labelledby="related-title">
+            <h2 class="related__title" id="related-title">
+              Riset terkait
+            </h2>
+            <ul class="related__list">
+              {related.map((item) => (
+                <li class="related__item">
+                  <a class="related__link" href={withBase(`/research/${item.id}`)}>
+                    {item.data.title}
+                  </a>
+                  <p class="related__desc">{item.data.description}</p>
+                  <p class="related__meta">
+                    <time datetime={item.data.date.toISOString()}>{dateFmt.format(item.data.date)}</time>
+                    {item.data.severity && <span aria-hidden="true"> · </span>}
+                    {item.data.severity && <span>{item.data.severity}</span>}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .post-layout {
+    width: 100%;
+    max-width: calc(var(--measure) + var(--s8) * 2);
+    margin-inline: auto;
+    padding-inline: var(--s5);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s5);
+  }
+
+  .post-head {
+    grid-column: 1 / -1;
+    max-width: var(--measure);
+  }
+
+  .post-title {
+    margin-bottom: var(--s4);
+    font-size: clamp(1.875rem, 1.4rem + 2vw, 2.75rem);
+    letter-spacing: -0.02em;
+  }
+
+  .post-abstract {
+    margin: 0 0 var(--s5);
+    color: var(--muted);
+    font-size: 1.0625rem;
+    max-width: var(--measure);
+  }
+
+  .post-main {
+    min-width: 0;
+  }
+
+  @media (min-width: 1080px) {
+    .post-layout {
+      max-width: calc(var(--measure) + 240px + var(--s8));
+      grid-template-columns: minmax(0, var(--measure)) 200px;
+      column-gap: var(--s7);
+      align-items: start;
+    }
+
+    .post-head,
+    .post-main {
+      grid-column: 1;
+    }
+
+    .post-head {
+      grid-row: 1;
+    }
+
+    .post-main {
+      grid-row: 2;
+    }
+
+    .post-aside {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: stretch;
+      padding-top: var(--s2);
+    }
+  }
+
+  .related {
+    margin-top: var(--s8);
+    padding-top: var(--s5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .related__title {
+    font-size: 1rem;
+    font-family: var(--mono);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: var(--s4);
+  }
+
+  .related__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .related__item {
+    margin: 0;
+    padding-block: var(--s4);
+    border-top: 1px solid var(--rule);
+  }
+
+  .related__item:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .related__link {
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .related__link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .related__desc {
+    margin: var(--s1) 0 var(--s2);
+    font-size: 0.9375rem;
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+
+  .related__meta {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>
+
+<style is:global>
+  .prose {
+    max-width: var(--measure);
+    min-width: 0;
+  }
+
+  .prose > :first-child {
+    margin-top: 0;
+  }
+
+  .prose :is(h2, h3, h4) {
+    font-family: var(--serif);
+    scroll-margin-top: var(--s7);
+  }
+
+  .prose h2 {
+    margin-top: var(--s7);
+    margin-bottom: var(--s4);
+    padding-top: var(--s4);
+    border-top: 1px solid var(--rule);
+  }
+
+  .prose h3 {
+    margin-top: var(--s6);
+    margin-bottom: var(--s3);
+  }
+
+  .prose p,
+  .prose li,
+  .prose blockquote {
+    max-width: var(--measure);
+  }
+
+  .prose ul,
+  .prose ol {
+    max-width: var(--measure);
+  }
+
+  .prose :is(h2, h3, h4):target {
+    color: var(--accent);
+  }
+
+  /* tabel lebar: pembungkus yang menggulir, tabelnya sendiri tidak meluber */
+  .prose .table-scroll {
+    max-width: 100%;
+    margin: 0 0 var(--s5);
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+  }
+
+  .prose .table-scroll table {
+    margin: 0;
+    min-width: 34rem;
+  }
+
+  .prose th,
+  .prose td {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* identifier di tabel tidak boleh terpotong di tengah token */
+  .prose table code {
+    white-space: nowrap;
+  }
+
+  .prose tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .prose figcaption {
+    max-width: var(--measure);
+  }
+
+  /* footnote (remark-gfm) */
+  .prose .footnotes {
+    margin-top: var(--s7);
+    padding-top: var(--s4);
+    border-top: 1px solid var(--rule);
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  .prose .footnotes hr {
+    display: none;
+  }
+
+  /* judul bawaan remark-gfm berbahasa Inggris; label Indonesia ditambahkan CSS */
+  .prose .footnotes > h2 {
+    display: none;
+  }
+
+  .prose .footnotes::before {
+    content: 'Catatan kaki';
+    display: block;
+    margin-bottom: var(--s3);
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .prose .footnotes ol {
+    padding-left: var(--s5);
+    margin: 0;
+  }
+
+  .prose .footnotes li {
+    margin-bottom: var(--s2);
+  }
+
+  .prose .footnotes p {
+    margin: 0;
+  }
+
+  .prose a[data-footnote-ref] {
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 0.75em;
+    padding: 0 1px;
+  }
+
+  .prose a[data-footnote-backref] {
+    text-decoration: none;
+    margin-left: var(--s1);
+  }
+</style>

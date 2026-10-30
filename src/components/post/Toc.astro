@@ -1,0 +1,139 @@
+---
+/**
+ * Toc — daftar isi tanpa JS.
+ * < 1080px: <details><summary>Daftar isi</summary>
+ * >= 1080px: sticky di kolom kanan (lihat .header-page pada halaman artikel).
+ */
+interface Props {
+  headings?: { depth: number; slug: string; text: string }[];
+}
+
+const items = (Astro.props.headings ?? []).filter(
+  (h) => (h.depth === 2 || h.depth === 3) && !/^footnotes?$/i.test(h.text.trim()),
+);
+---
+
+{
+  items.length > 1 && (
+    <nav class="toc" aria-label="Daftar isi">
+      <details class="toc__mobile">
+        <summary class="toc__summary">Daftar isi</summary>
+        <ol class="toc__list">
+          {items.map((h) => (
+            <li class:list={['toc__item', `toc__item--h${h.depth}`]}>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ol>
+      </details>
+
+      <div class="toc__desktop">
+        <p class="toc__title">Daftar isi</p>
+        <ol class="toc__list">
+          {items.map((h) => (
+            <li class:list={['toc__item', `toc__item--h${h.depth}`]}>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    font-size: 0.875rem;
+  }
+
+  .toc__mobile {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .toc__summary {
+    padding: var(--s2) var(--s3);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .toc__summary:hover {
+    color: var(--ink);
+  }
+
+  .toc__mobile[open] .toc__summary {
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: var(--s2);
+  }
+
+  .toc__mobile .toc__list {
+    padding: 0 var(--s3) var(--s2);
+  }
+
+  .toc__desktop {
+    display: none;
+  }
+
+  .toc__title {
+    margin: 0 0 var(--s3);
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .toc__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc__item {
+    margin: 0 0 var(--s2);
+    line-height: 1.4;
+  }
+
+  .toc__item--h3 {
+    padding-left: var(--s3);
+    font-size: 0.8125rem;
+  }
+
+  .toc__item a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .toc__item a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--accent);
+  }
+
+  @media (min-width: 1080px) {
+    .toc__mobile {
+      display: none;
+    }
+
+    /* sticky dipasang di nav agar mengikuti tinggi kolom grid (lihat page) */
+    .toc {
+      position: sticky;
+      top: var(--s6);
+    }
+
+    .toc__desktop {
+      display: block;
+      max-height: calc(100vh - var(--s8));
+      overflow-y: auto;
+      padding-left: var(--s4);
+      border-left: 1px solid var(--rule);
+    }
+  }
+</style>

@@ -1,0 +1,154 @@
+---
+import { withBase } from '../../lib/url';
+
+interface Props {
+  date: Date;
+  updated?: Date;
+  words: number;
+  tags?: string[];
+  severity?: 'info' | 'low' | 'medium' | 'high' | 'critical';
+  cve?: string[];
+}
+
+const { date, updated, words, tags = [], severity, cve = [] } = Astro.props;
+
+const fmt = new Intl.DateTimeFormat('id-ID', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Asia/Makassar',
+});
+
+const minutes = Math.max(1, Math.round(words / 200));
+
+const severityLabel: Record<string, string> = {
+  info: 'Info',
+  low: 'Rendah',
+  medium: 'Sedang',
+  high: 'Tinggi',
+  critical: 'Kritis',
+};
+---
+
+<div class="postmeta">
+  <time class="postmeta__item" datetime={date.toISOString()}>{fmt.format(date)}</time>
+  <span class="postmeta__item">{minutes} menit baca</span>
+
+  {
+    updated && (
+      <span class="postmeta__item">
+        diperbarui <time datetime={updated.toISOString()}>{fmt.format(updated)}</time>
+      </span>
+    )
+  }
+
+  {
+    severity && (
+      <span class="postmeta__sev" data-severity={severity}>
+        {severityLabel[severity] ?? severity}
+      </span>
+    )
+  }
+
+  {
+    cve.length > 0 && (
+      <span class="postmeta__item postmeta__cve">
+        {cve.map((id) => (
+          <code>{id}</code>
+        ))}
+      </span>
+    )
+  }
+
+  {
+    tags.length > 0 && (
+      <ul class="postmeta__tags">
+        {tags.map((tag) => (
+          <li>
+            <a href={withBase(`/tags/${tag}`)}>{tag}</a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>
+
+<style>
+  .postmeta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2) var(--s4);
+    padding-block: var(--s3);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .postmeta__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+  }
+
+  .postmeta__item time {
+    color: var(--muted);
+  }
+
+  .postmeta__sev {
+    padding: 1px var(--s2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .postmeta__sev[data-severity='critical'],
+  .postmeta__sev[data-severity='high'] {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .postmeta__cve {
+    flex-wrap: wrap;
+  }
+
+  .postmeta__cve code {
+    font-size: 0.6875rem;
+    padding: 0 var(--s1);
+  }
+
+  .postmeta__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-left: auto;
+  }
+
+  .postmeta__tags li {
+    margin: 0;
+  }
+
+  .postmeta__tags a {
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .postmeta__tags a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  @media (max-width: 560px) {
+    .postmeta__tags {
+      margin-left: 0;
+    }
+  }
+</style>

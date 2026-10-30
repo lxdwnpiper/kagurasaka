@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="kagurasaka">
+  <rect width="32" height="32" fill="#FAFAF8"/>
+  <rect x="1" y="1" width="30" height="30" fill="none" stroke="#E3E1DB"/>
+  <path d="M9 8v16M9 16l9-8M9 16l9 8" fill="none" stroke="#14161A" stroke-width="2.5"/>
+  <circle cx="23" cy="16" r="2.5" fill="#21456E"/>
+</svg>
