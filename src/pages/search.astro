@@ -1,0 +1,166 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const bundlePath = `${base}/pagefind/`;
+
+const head = `<link rel="stylesheet" href="${withBase('/pagefind/pagefind-ui.css')}" />`;
+---
+
+<Base
+  title="Cari"
+  description="Pencarian penuh atas seluruh artikel riset di kagurasaka."
+  head={head}
+>
+  <div class="search-page">
+    <p class="eyebrow">Pencarian</p>
+    <h1 class="search-title">Cari riset</h1>
+    <p class="search-lede">
+      Indeks dibangun saat build, jadi pencarian berjalan sepenuhnya di peramban — tanpa server dan
+      tanpa permintaan keluar.
+    </p>
+
+    <div id="search" class="search-box" data-bundle={bundlePath}></div>
+
+    <noscript>
+      <p class="search-noscript">
+        Pencarian butuh JavaScript. Daftar lengkap tersedia di <a href={withBase('/research/')}>arsip riset</a>.
+      </p>
+    </noscript>
+  </div>
+</Base>
+
+<style is:global>
+  .search-page {
+    max-width: var(--measure);
+    margin-inline: auto;
+    padding: var(--s8) var(--s5);
+  }
+
+  .search-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 1.6rem + 2vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: var(--s3) 0 var(--s3);
+  }
+
+  .search-lede {
+    color: var(--muted);
+    max-width: 58ch;
+    margin-bottom: var(--s7);
+  }
+
+  .search-noscript {
+    margin-top: var(--s5);
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s4);
+    color: var(--muted);
+  }
+
+  /* Selaraskan komponen Pagefind dengan token situs. */
+  .search-box {
+    --pagefind-ui-scale: 0.95;
+    --pagefind-ui-primary: var(--ink);
+    --pagefind-ui-text: var(--ink);
+    --pagefind-ui-background: var(--bg);
+    --pagefind-ui-border: var(--rule);
+    --pagefind-ui-tag: var(--surface);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 2px;
+    --pagefind-ui-font: var(--sans);
+  }
+
+  .search-box .pagefind-ui__form {
+    position: relative;
+  }
+
+  .search-box .pagefind-ui__search-input {
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    font-family: var(--sans);
+    padding-block: 0.85rem;
+    padding-right: 5.5rem;
+  }
+
+  .search-box .pagefind-ui__search-input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-color: var(--accent);
+  }
+
+  .search-box .pagefind-ui__search-clear {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.25rem 0.5rem;
+    border: 0;
+  }
+
+  .search-box .pagefind-ui__results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .search-box .pagefind-ui__result {
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s4);
+  }
+
+  .search-box .pagefind-ui__result-title a {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 3px;
+  }
+
+  .search-box .pagefind-ui__result-title a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  .search-box .pagefind-ui__result-excerpt {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .search-box mark {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--ink);
+  }
+</style>
+
+<script is:inline src={withBase('/pagefind/pagefind-ui.js')}></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const host = document.getElementById('search');
+    if (!host || typeof window.PagefindUI !== 'function') return;
+
+    new window.PagefindUI({
+      element: '#search',
+      bundlePath: host.dataset.bundle || '/pagefind/',
+      showSubResults: true,
+      showImages: false,
+      translations: {
+        placeholder: 'Cari kata kunci, CVE, atau tag…',
+        clear_search: 'Hapus',
+        load_more: 'Muat lebih banyak',
+        search_label: 'Cari di situs ini',
+        filters_label: 'Saringan',
+        zero_results: 'Tidak ada hasil untuk [SEARCH_TERM]',
+        many_results: '[COUNT] hasil untuk [SEARCH_TERM]',
+        one_result: '[COUNT] hasil untuk [SEARCH_TERM]',
+        alt_search: 'Tidak ada hasil untuk [SEARCH_TERM]. Menampilkan hasil untuk [DIFFERENT_TERM]',
+        search_suggestion: 'Tidak ada hasil untuk [SEARCH_TERM]. Coba salah satu pencarian ini:',
+        searching: 'Mencari [SEARCH_TERM]…',
+      },
+    });
+  });
+</script>

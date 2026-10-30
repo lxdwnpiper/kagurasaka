@@ -54,7 +54,7 @@ const dateFmt = new Intl.DateTimeFormat('id-ID', {
       {post.data.toc && <Toc headings={headings} />}
     </div>
 
-    <div class="post-main">
+    <div class="post-main" data-pagefind-body>
       <Prose>
         <Content />
       </Prose>
