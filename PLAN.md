@@ -1,7 +1,14 @@
 # PLAN — Security Research Blog (GitHub Pages)
 
-Status: **draft, menunggu go-ahead eksekusi**
+Status: **M0–M4 selesai, M5 live** — https://lxdwnpiper.github.io/kagurasaka/
 Tanggal: 2026-10-30
+
+## Alur menambah artikel
+
+1. Salin `TEMPLATE-artikel.md` → `src/content/research/<slug>.md`.
+2. Isi frontmatter (title, description, date, tags, severity?, cve?, draft, toc).
+3. `npm run dev` untuk pratinjau, lalu `git push` ke `main`.
+4. Workflow `Deploy ke GitHub Pages` build + deploy otomatis (~1 menit).
 
 ## Keputusan yang sudah dikunci
 
