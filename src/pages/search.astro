@@ -139,11 +139,14 @@ const head = `<link rel="stylesheet" href="${withBase('/pagefind/pagefind-ui.css
 <script is:inline src={withBase('/pagefind/pagefind-ui.js')}></script>
 
 <script>
+  type PagefindUIConstructor = new (options: Record<string, unknown>) => unknown;
+
   document.addEventListener('DOMContentLoaded', () => {
     const host = document.getElementById('search');
-    if (!host || typeof window.PagefindUI !== 'function') return;
+    const PagefindUI = (window as unknown as { PagefindUI?: PagefindUIConstructor }).PagefindUI;
+    if (!host || typeof PagefindUI !== 'function') return;
 
-    new window.PagefindUI({
+    new PagefindUI({
       element: '#search',
       bundlePath: host.dataset.bundle || '/pagefind/',
       showSubResults: true,
