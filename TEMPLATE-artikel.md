@@ -33,9 +33,13 @@ Blok kode: baris pertama di dalam blok menentukan label nama file yang tampil di
 echo "label di atas blok diambil dari komentar '# path: ...'"
 ```
 
-> Peringatan: kalau butuh kotak peringatan, pakai blockquote yang diawali kata
-> **Peringatan:** — atau minta saya menambahkan komponen Callout khusus.
+> [!warn] Peringatan: kalau butuh kotak peringatan, cukup blockquote yang diawali
+> `[!warn]`. Varian lain: `[!note]` dan `[!poc]`.
 
 Footnote juga jalan.[^1]
+
+Gambar: simpan di `public/img/<slug>/`, rujuk dengan path ber-base.
+
+<img src="/kagurasaka/img/<slug>/gambar.png" alt="deskripsi gambar">
 
 [^1]: Teks catatan kaki.
